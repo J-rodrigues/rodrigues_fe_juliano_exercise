@@ -1,13 +1,13 @@
 import * as React from 'react';
 import {useLocation, useParams} from 'react-router-dom';
-import {ListItem, UserData} from 'types';
+import {TeamListItemI, UserDataI} from 'types';
 import {getTeamOverview, getUserData} from '../api';
 import Card from '../components/Card';
 import {Container} from '../components/GlobalComponents';
 import Header from '../components/Header';
 import List from '../components/List';
 
-var mapArray = (users: UserData[]) => {
+var mapArray = (users: UserDataI[]) => {
     return users.map(u => {
         var columns = [
             {
@@ -29,7 +29,7 @@ var mapArray = (users: UserData[]) => {
             columns,
             navigationProps: u,
         };
-    }) as ListItem[];
+    }) as TeamListItemI[];
 };
 
 var mapTLead = tlead => {
@@ -55,8 +55,8 @@ var mapTLead = tlead => {
 };
 
 interface PageState {
-    teamLead?: UserData;
-    teamMembers?: UserData[];
+    teamLead?: UserDataI;
+    teamMembers?: UserDataI[];
 }
 
 const TeamOverview = () => {

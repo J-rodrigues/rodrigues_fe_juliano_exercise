@@ -1,11 +1,11 @@
 import * as React from 'react';
 import {useLocation} from 'react-router-dom';
-import {UserData} from 'types';
+import {UserDataI} from 'types';
 import Card from '../components/Card';
 import {Container} from '../components/GlobalComponents';
 import Header from '../components/Header';
 
-var mapU = (user: UserData) => {
+var mapU = (user: UserDataI) => {
     var columns = [
         {
             key: 'Name',
