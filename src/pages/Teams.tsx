@@ -6,17 +6,8 @@ import List from '../components/List';
 import {Container} from '../components/GlobalComponents';
 
 const Teams = () => {
-    const [teams, setTeams] = React.useState<TeamListItemI[]>([]);
+    const [teamsListItem, setTeamsListItem] = React.useState<TeamListItemI[]>([]);
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
-
-    React.useEffect(() => {
-        getTeams();
-    }, []);
-
-    const getTeams = async () => {
-        setTeams(convertTeamListItem(await fetchTeams()));
-        setIsLoading(false);
-    };
 
     const convertTeamListItem = (teams: TeamsI[]): TeamListItemI[] => {
         return teams.map(team => {
@@ -34,10 +25,19 @@ const Teams = () => {
         });
     };
 
+    const getTeams = async () => {
+        setTeamsListItem(convertTeamListItem(await fetchTeams()));
+        setIsLoading(false);
+    };
+
+    React.useEffect(() => {
+        getTeams();
+    }, []);
+
     return (
         <Container>
             <Header title="Teams" showBackButton={false} />
-            <List items={teams} isLoading={isLoading} />
+            <List items={teamsListItem} isLoading={isLoading} />
         </Container>
     );
 };
