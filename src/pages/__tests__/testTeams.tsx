@@ -28,8 +28,12 @@ describe('Teams', () => {
         jest.useRealTimers();
     });
 
-    it('should render spinner while loading', async () => {
-        // TODO - Add code for this test
+    it('should render spinner while loading', async () => {     
+        render(<Teams/>);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('spinner')).toBeDefined();
+        });
     });
 
     it('should render teams list', async () => {
@@ -48,7 +52,7 @@ describe('Teams', () => {
 
         await waitFor(() => {
             expect(screen.getByText('Team1')).toBeInTheDocument();
-        });
-        expect(screen.getByText('Team2')).toBeInTheDocument();
+            expect(screen.getByText('Team2')).toBeInTheDocument();
+        });        
     });
 });
