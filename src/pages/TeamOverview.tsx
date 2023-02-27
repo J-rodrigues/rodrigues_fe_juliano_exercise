@@ -7,57 +7,36 @@ import {Container} from '../components/GlobalComponents';
 import Header from '../components/Header';
 import List from '../components/List';
 
-var mapArray = (users: UserDataI[]) => {
-    return users.map(u => {
-        var columns = [
-            {
-                key: 'Name',
-                value: `${u.firstName} ${u.lastName}`,
-            },
-            {
-                key: 'Display Name',
-                value: u.displayName,
-            },
-            {
-                key: 'Location',
-                value: u.location,
-            },
-        ];
-        return {
-            id: u.id,
-            url: `/user/${u.id}`,
-            columns,
-            navigationProps: u,
-        };
-    }) as TeamListItemI[];
-};
+interface CardState {
+    teamLead: UserDataI;
+}
 
-var mapTLead = tlead => {
-    var columns = [
+interface PageState {
+    teamLead?: UserDataI;
+    teamListMembers?: TeamListItemI[];
+}
+
+const CardLead = ({teamLead}: CardState) => {
+    const columns = [
         {
             key: 'Team Lead',
             value: '',
         },
         {
             key: 'Name',
-            value: `${tlead.firstName} ${tlead.lastName}`,
+            value: `${teamLead.firstName} ${teamLead.lastName}`,
         },
         {
             key: 'Display Name',
-            value: tlead.displayName,
+            value: teamLead.displayName,
         },
         {
             key: 'Location',
-            value: tlead.location,
+            value: teamLead.location,
         },
     ];
-    return <Card columns={columns} url={`/user/${tlead.id}`} navigationProps={tlead} />;
+    return <Card columns={columns} url={`/user/${teamLead.id}`} navigationProps={teamLead} />;
 };
-
-interface PageState {
-    teamLead?: UserDataI;
-    teamMembers?: UserDataI[];
-}
 
 const TeamOverview = () => {
     const location = useLocation();
@@ -65,30 +44,44 @@ const TeamOverview = () => {
     const [pageData, setPageData] = React.useState<PageState>({});
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
-    React.useEffect(() => {
-        var getTeamUsers = async () => {
-            const {teamLeadId, teamMemberIds = []} = await getTeamOverview(teamId);
-            const teamLead = await getUserData(teamLeadId);
+    const memberItems = (users: UserDataI[]): TeamListItemI[] => {
+        return users.map(user=> ({
+            id: user.id,
+            url: `/user/${user.id}`,
+            columns: [
+                {
+                    key: 'Name',
+                    value: `${user.firstName} ${user.lastName}`,
+                },
+                {
+                    key: 'Display Name',
+                    value: user.displayName,
+                },
+                {
+                    key: 'Location',
+                    value: user.location,
+                },
+            ],
+            navigationProps: user,            
+        }));
+    };
 
-            const teamMembers = [];
-            for(var teamMemberId of teamMemberIds) {
-                const data = await getUserData(teamMemberId);
-                teamMembers.push(data);
-            }
-            setPageData({
-                teamLead,
-                teamMembers,
-            });
-            setIsLoading(false);
-        };
+    const getTeamUsers = async () => {
+        const {teamLeadId, teamMemberIds = []} = await getTeamOverview(teamId);    
+        const members = await Promise.all([getUserData(teamLeadId), ...teamMemberIds.map(id => getUserData(id))]);
+        setPageData({teamLead: members.shift(), teamListMembers: memberItems(members)});
+        setIsLoading(false);
+    };
+
+    React.useEffect(() => {
         getTeamUsers();
     }, [teamId]);
 
     return (
         <Container>
             <Header title={`Team ${location.state.name}`} />
-            {!isLoading && mapTLead(pageData.teamLead)}
-            <List items={mapArray(pageData?.teamMembers ?? [])} isLoading={isLoading} />
+            {!isLoading && <CardLead teamLead={pageData.teamLead} />}
+            <List items={pageData?.teamListMembers} isLoading={isLoading} />
         </Container>
     );
 };
