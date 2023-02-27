@@ -7,7 +7,7 @@ import {Container} from '../components/GlobalComponents';
 import Header from '../components/Header';
 import List from '../components/List';
 
-interface CardState {
+interface CardLeadI {
     teamLead: UserDataI;
 }
 
@@ -16,7 +16,7 @@ interface PageState {
     teamListMembers?: TeamListItemI[];
 }
 
-const CardLead = ({teamLead}: CardState) => {
+const CardLead = ({teamLead}: CardLeadI) => {
     const columns = [
         {
             key: 'Team Lead',
