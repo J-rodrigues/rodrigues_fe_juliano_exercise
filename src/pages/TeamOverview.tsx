@@ -5,57 +5,17 @@ import {getTeamOverview, getUserData} from '../api';
 import Card from '../components/Card';
 import {Container} from '../components/GlobalComponents';
 import List from '../components/List';
-
-interface CardLeadI {
-    teamLead: UserDataI;
-}
-
-interface PageState {
-    teamLead?: UserDataI;
-    teamListMembers?: TeamListItemI[];
-}
-
-const CardLead = ({teamLead}: CardLeadI) => {
-    return (
-        <Card 
-            columns={[
-                {
-                    key: 'Team Lead',
-                    value: '',
-                },
-                {
-                    key: 'Name',
-                    value: `${teamLead.firstName} ${teamLead.lastName}`,
-                },
-                {
-                    key: 'Display Name',
-                    value: teamLead.displayName,
-                },
-                {
-                    key: 'Location',
-                    value: teamLead.location,
-                },
-            ]} 
-            url={`/user/${teamLead.id}`} 
-            navigationProps={{
-                ...teamLead, 
-                title: `${teamLead.firstName} ${teamLead.lastName}`,
-            }} 
-        />
-    );
-};
+import Search from '../components/Search';
 
 const TeamOverview = () => {
-    const location = useLocation();
     const {teamId} = useParams();
-    const [pageData, setPageData] = React.useState<PageState>({});
+    const [teamListMembers, setTeamListMembers] = React.useState<TeamListItemI[]>([]);
+    const [filterTeamListMembers, setFilterTeamListMembers] = React.useState<TeamListItemI[]>(null);
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
     const memberItems = (users: UserDataI[]): TeamListItemI[] => {
-        return users.map(user=> ({
-            id: user.id,
-            url: `/user/${user.id}`,
-            columns: [
+        return users.map((user, i)=> {
+            const columns = [
                 {
                     key: 'Name',
                     value: `${user.firstName} ${user.lastName}`,
@@ -68,18 +28,31 @@ const TeamOverview = () => {
                     key: 'Location',
                     value: user.location,
                 },
-            ],
-            navigationProps: {
-                ...user, 
-                title: `${user.firstName} ${user.lastName}`,
-            },           
-        }));
+            ];
+            if (i === 0){
+                columns.unshift(
+                    {
+                        key: 'Team Leader',
+                        value: '',
+                    }
+                );
+            }
+            return {
+                id: user.id,
+                url: `/user/${user.id}`,
+                columns,
+                navigationProps: {
+                    ...user, 
+                    title: `${user.firstName} ${user.lastName}`,
+                },           
+            };
+        });
     };
 
     const getTeamUsers = async () => {
         const {teamLeadId, teamMemberIds = []} = await getTeamOverview(teamId);    
         const members = await Promise.all([getUserData(teamLeadId), ...teamMemberIds.map(id => getUserData(id))]);
-        setPageData({teamLead: members.shift(), teamListMembers: memberItems(members)});
+        setTeamListMembers(memberItems(members));
         setIsLoading(false);
     };
 
@@ -89,8 +62,13 @@ const TeamOverview = () => {
 
     return (
         <Container>
-            {!isLoading && <CardLead teamLead={pageData.teamLead} />}
-            <List items={pageData?.teamListMembers} isLoading={isLoading} />
+            <Search 
+                list={teamListMembers} 
+                setFilterList={setFilterTeamListMembers} 
+                placeholder='Search Users'
+            />
+            {!isLoading && !filterTeamListMembers && <Card {...teamListMembers[0]} />}
+            <List items={filterTeamListMembers || teamListMembers.slice(1)} isLoading={isLoading} />
         </Container>
     );
 };
