@@ -1,44 +1,51 @@
 import * as React from 'react';
-import {ListItem, Teams as TeamsList} from 'types';
+import {TeamListItemI, TeamsI} from 'types';
 import {getTeams as fetchTeams} from '../api';
-import Header from '../components/Header';
 import List from '../components/List';
 import {Container} from '../components/GlobalComponents';
-
-var MapT = (teams: TeamsList[]) => {
-    return teams.map(team => {
-        var columns = [
-            {
-                key: 'Name',
-                value: team.name,
-            },
-        ];
-        return {
-            id: team.id,
-            url: `/team/${team.id}`,
-            columns,
-            navigationProps: team,
-        } as ListItem;
-    });
-};
+import Search from '../components/Search';
 
 const Teams = () => {
-    const [teams, setTeams] = React.useState<any>([]);
-    const [isLoading, setIsLoading] = React.useState<any>(true);
+    const [teamsListItem, setTeamsListItem] = React.useState<TeamListItemI[]>([]);
+    const [filterTeamsListItem, setFilterTeamsListItem] = React.useState<TeamListItemI[]>(null);
+    const [isLoading, setIsLoading] = React.useState<boolean>(true);
+
+    const convertTeamListItem = (teams: TeamsI[]): TeamListItemI[] => {
+        return teams.map(team => {
+            return {
+                id: team.id,
+                url: `/team/${team.id}`,
+                columns: [
+                    {
+                        key: 'Name',
+                        value: team.name,
+                    },
+                ],
+                navigationProps: {
+                    ...team, 
+                    title: `Team ${team.name}`,
+                },
+            };
+        });
+    };
+
+    const getTeams = async () => {
+        setTeamsListItem(convertTeamListItem(await fetchTeams()));
+        setIsLoading(false);
+    };
 
     React.useEffect(() => {
-        const getTeams = async () => {
-            const response = await fetchTeams();
-            setTeams(response);
-            setIsLoading(false);
-        };
         getTeams();
     }, []);
 
     return (
         <Container>
-            <Header title="Teams" showBackButton={false} />
-            <List items={MapT(teams)} isLoading={isLoading} />
+            <Search 
+                list={teamsListItem} 
+                setFilterList={setFilterTeamsListItem} 
+                placeholder='Search Teams'
+            />
+            <List items={filterTeamsListItem || teamsListItem} isLoading={isLoading} />
         </Container>
     );
 };
