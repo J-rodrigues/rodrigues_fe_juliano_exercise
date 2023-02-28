@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {TeamListItemI, TeamsI} from 'types';
 import {getTeams as fetchTeams} from '../api';
-import Header from '../components/Header';
 import List from '../components/List';
 import {Container} from '../components/GlobalComponents';
 
@@ -20,7 +19,10 @@ const Teams = () => {
                         value: team.name,
                     },
                 ],
-                navigationProps: team,
+                navigationProps: {
+                    ...team, 
+                    title: `Team ${team.name}`,
+                },
             };
         });
     };
@@ -36,7 +38,6 @@ const Teams = () => {
 
     return (
         <Container>
-            <Header title="Teams" showBackButton={false} />
             <List items={teamsListItem} isLoading={isLoading} />
         </Container>
     );

@@ -3,7 +3,6 @@ import {useLocation} from 'react-router-dom';
 import {UserDataI} from 'types';
 import Card from '../components/Card';
 import {Container} from '../components/GlobalComponents';
-import Header from '../components/Header';
 
 interface CardUserI {
     user: UserDataI;
@@ -31,9 +30,6 @@ const UserOverview = () => {
     const location = useLocation();
     return (
         <Container>
-            <Header
-                title={`User ${location.state.firstName} ${location.state.lastName}`}
-            />
             <CardUser user={location.state} />
         </Container>
     );

@@ -4,7 +4,6 @@ import {TeamListItemI, UserDataI} from 'types';
 import {getTeamOverview, getUserData} from '../api';
 import Card from '../components/Card';
 import {Container} from '../components/GlobalComponents';
-import Header from '../components/Header';
 import List from '../components/List';
 
 interface CardLeadI {
@@ -17,25 +16,33 @@ interface PageState {
 }
 
 const CardLead = ({teamLead}: CardLeadI) => {
-    const columns = [
-        {
-            key: 'Team Lead',
-            value: '',
-        },
-        {
-            key: 'Name',
-            value: `${teamLead.firstName} ${teamLead.lastName}`,
-        },
-        {
-            key: 'Display Name',
-            value: teamLead.displayName,
-        },
-        {
-            key: 'Location',
-            value: teamLead.location,
-        },
-    ];
-    return <Card columns={columns} url={`/user/${teamLead.id}`} navigationProps={teamLead} />;
+    return (
+        <Card 
+            columns={[
+                {
+                    key: 'Team Lead',
+                    value: '',
+                },
+                {
+                    key: 'Name',
+                    value: `${teamLead.firstName} ${teamLead.lastName}`,
+                },
+                {
+                    key: 'Display Name',
+                    value: teamLead.displayName,
+                },
+                {
+                    key: 'Location',
+                    value: teamLead.location,
+                },
+            ]} 
+            url={`/user/${teamLead.id}`} 
+            navigationProps={{
+                ...teamLead, 
+                title: `${teamLead.firstName} ${teamLead.lastName}`,
+            }} 
+        />
+    );
 };
 
 const TeamOverview = () => {
@@ -62,7 +69,10 @@ const TeamOverview = () => {
                     value: user.location,
                 },
             ],
-            navigationProps: user,            
+            navigationProps: {
+                ...user, 
+                title: `${user.firstName} ${user.lastName}`,
+            },           
         }));
     };
 
@@ -79,7 +89,6 @@ const TeamOverview = () => {
 
     return (
         <Container>
-            <Header title={`Team ${location.state.name}`} />
             {!isLoading && <CardLead teamLead={pageData.teamLead} />}
             <List items={pageData?.teamListMembers} isLoading={isLoading} />
         </Container>

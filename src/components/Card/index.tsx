@@ -1,9 +1,9 @@
 import * as React from 'react';
 import {useNavigate} from 'react-router-dom';
-import {TeamsI, UserDataI} from 'types';
+import {TeamsI, UserDataI, NavPropsI} from 'types';
 import {Container} from './styles';
 
-interface Props {
+interface PropsI {
     id?: string;
     url?: string;
     columns: Array<{
@@ -11,7 +11,7 @@ interface Props {
         value: string;
     }>;
     hasNavigation?: boolean;
-    navigationProps?: UserDataI | TeamsI;
+    navigationProps?: UserDataI & NavPropsI | TeamsI & NavPropsI;
 }
 
 const Card = ({
@@ -20,7 +20,7 @@ const Card = ({
     url,
     hasNavigation = true,
     navigationProps = null,
-}: Props): JSX.Element => {
+}: PropsI): JSX.Element => {
     const navigate = useNavigate();
 
     return (

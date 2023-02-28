@@ -23,9 +23,13 @@ export interface TeamListItemColumnI {
     value: string;
 }
 
+export interface NavPropsI {
+    title?: string;
+}
+
 export interface TeamListItemI {
     id: string;
     url?: string;
     columns: Array<TeamListItemColumnI>;
-    navigationProps?: UserDataI | TeamsI;
+    navigationProps?: UserDataI & NavPropsI | TeamsI & NavPropsI;
 }
